@@ -1,18 +1,28 @@
 import time
 import csv
-import arabic_reshaper
+import pandas as pd
 from selenium.webdriver.chrome.options import Options
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 
 # Hadless chrome browser setup
 chrome_options = Options()
-chrome_options.add_argument("--headless")
+options.add_argument('--incognito')
+options.add_argument("--headless")
+options.add_argument('--disable-gpu')
+options.add_argument('--no-sandbox')
+options.add_argument('--ignore-certificate-errors')
+options.add_argument('--disable-dev-shm-usage')
 driver = webdriver.Chrome(options=chrome_options)
 driver.get("https://twitter.com/search?q=lang%3Aar")
 
 
+tweets = []
+
 def close():
+    dict = {'tweet': tweets}
+    df = pd.DataFrame(dict).drop_duplicates()
+    df.to_csv('tweets.csv', index=False, encoding='utf-8', mode='a', header=False)
     driver.close()
 
 
@@ -28,16 +38,8 @@ try:
 
         # Looping inside the Element to extract Arabic text
         for items in tweetscope:
-            tweetItem = driver.find_element(By.XPATH, "//div[@lang='ar']")
-            tweettext = tweetItem.text
-            tweets = arabic_reshaper.reshape(tweettext)
-            print(tweets)
-
-            # Csv file writing of the content of the list "tweettext
-            with open("tweets.csv", "r+", encoding="utf-8") as csvfile:
-                csvreader = csv.reader(csvfile, delimiter=',', quotechar='"')
-                csvwriter = csv.writer(csvfile, delimiter=' ', quotechar='"')
-                csvwriter.writerow(tweets[::-1])
+            tweet = driver.find_element(By.XPATH, "//div[@lang='ar']").text
+            tweets.append(tweet)
 
 # User can interupt the program
 except KeyboardInterrupt:
