@@ -1,15 +1,16 @@
-import csv
 import time
+import csv
+import arabic_reshaper
+from bidi.algorithm import get_display
+from selenium.webdriver.chrome.options import Options
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
-from selenium.common.exceptions import ElementClickInterceptedException
 
-filename = "Tweet_Scrapes.csv"
-
-driver = webdriver.Chrome()
+# Hadless chrome browser setup
+chrome_options = Options()
+chrome_options.add_argument("--headless")
+driver = webdriver.Chrome(options=chrome_options)
 driver.get("https://twitter.com/search?q=lang%3Aar")
-array = []
 
 
 def close():
@@ -18,11 +19,28 @@ def close():
 
 try:
     while True:
+
+        # Scrolling
         driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        time.sleep(7)  # sleep_between_interactions
+        time.sleep(10)  # sleep_between_interactions
+
+        # First scope of search by Elements
         tweetscope = driver.find_elements(By.TAG_NAME, "article")
+
+        # Looping inside the Element to extract Arabic text
         for items in tweetscope:
             tweetItem = driver.find_element(By.XPATH, "//div[@lang='ar']")
-            array.append(tweetItem)
+            tweettext = tweetItem.text
+            tweets = arabic_reshaper.reshape(tweettext)
+            Bidi_text = get_display(tweets)
+            print(tweets)
+
+            # Csv file writing of the content of the list "tweettext
+            with open("tweets.csv", "r+", encoding="utf-8") as csvfile:
+                csvreader = csv.reader(csvfile, delimiter=',', quotechar=',')
+                csvwriter = csv.writer(csvfile, delimiter=' ', quotechar=',')
+                csvwriter.writerow(Bidi_text[::-1])
+
+# User can interupt the program
 except KeyboardInterrupt:
     close()
