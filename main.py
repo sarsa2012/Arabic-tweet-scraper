@@ -1,7 +1,6 @@
 import time
 import csv
 import arabic_reshaper
-from bidi.algorithm import get_display
 from selenium.webdriver.chrome.options import Options
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -32,14 +31,13 @@ try:
             tweetItem = driver.find_element(By.XPATH, "//div[@lang='ar']")
             tweettext = tweetItem.text
             tweets = arabic_reshaper.reshape(tweettext)
-            Bidi_text = get_display(tweets)
             print(tweets)
 
             # Csv file writing of the content of the list "tweettext
             with open("tweets.csv", "r+", encoding="utf-8") as csvfile:
-                csvreader = csv.reader(csvfile, delimiter=',', quotechar=',')
-                csvwriter = csv.writer(csvfile, delimiter=' ', quotechar=',')
-                csvwriter.writerow(Bidi_text[::-1])
+                csvreader = csv.reader(csvfile, delimiter=',', quotechar='"')
+                csvwriter = csv.writer(csvfile, delimiter=' ', quotechar='"')
+                csvwriter.writerow(tweets[::-1])
 
 # User can interupt the program
 except KeyboardInterrupt:
