@@ -1,2 +1,2 @@
-arabic_reshaper==2.1.3
+pandas==1.3.5
 selenium==4.1.0
